@@ -5,8 +5,6 @@
 #define _WIN32_WINNT 0X0500
 #include <windows.h>
 
-#include "LockScreen.h"
-
 HHOOK g_hlowKeyHook = NULL;
 HHOOK g_hMouse = NULL;
 HWND g_HWnd = NULL;
@@ -61,35 +59,26 @@ napi_value SetHook(napi_env env, napi_callback_info info) {
   status = napi_typeof(env, args[0], &valuetype0);
   assert(status == napi_ok);
 
-  //void* data = nullptr;
-	//size_t length = 0;
+  void* data = nullptr;
+  size_t length = 0;
 	
-	bool result;
-  //status = napi_get_buffer_info(env, args[0], &data,&length);
-  status = napi_get_value_bool(env,args[0],&result);
+  status = napi_get_buffer_info(env, args[0], &data,&length);
   assert(status == napi_ok);
-
-  //g_HWnd = reinterpret_cast<HWND>(data);
-  //assert(g_HWnd);
-
-	//g_HWnd = reinterpret_cast<HWND>(data);
-	//g_hlowKeyHook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboardProc, GetModuleHandle(nullptr), 0);
-
-	CLockScreen::Disable(ALL,result);
+  g_HWnd = reinterpret_cast<HWND>(data);
+  g_hlowKeyHook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboardProc, GetModuleHandle(nullptr), 0);
   return args[1];
-
 }
 
 #define DECLARE_NAPI_METHOD(name, func)                                        \
   { name, 0, func, 0, 0, 0, napi_default, 0 }
 
-napi_value Init(napi_env env, napi_value exports) {
+  napi_value Init(napi_env env, napi_value exports) {
   napi_status status;
   napi_property_descriptor desc = DECLARE_NAPI_METHOD("SetHook", SetHook);
   status = napi_define_properties(env, exports, 1, &desc);
 
- //napi_property_descriptor clear = DECLARE_NAPI_METHOD("ClearHook", ClearHook);
-  //status = napi_define_properties(env, exports, 2, &clear);
+  napi_property_descriptor clear = DECLARE_NAPI_METHOD("ClearHook", ClearHook);
+  status = napi_define_properties(env, exports, 2, &clear);
   
   assert(status == napi_ok);
   return exports;
